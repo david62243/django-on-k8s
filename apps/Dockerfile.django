@@ -1,0 +1,11 @@
+FROM alpine:3.14.0
+
+# docker build -t david62243/django:v1.0 . -f Dockerfile.django
+# docker push david62243/django:v1.0
+
+RUN apk update && \
+    apk add curl python3 py3-pip
+
+RUN pip3 install django
+
+WORKDIR /root

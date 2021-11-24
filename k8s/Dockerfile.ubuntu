@@ -1,0 +1,8 @@
+FROM ubuntu:20.04
+
+
+# docker build -t aigdev/ubuntu:20.04 . -f Dockerfile.ubuntu
+
+
+RUN apt-get update \
+    && apt-get install -y curl

@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "password-generator.fullname" . }}
+  labels:
+    {{- include "password-generator.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  serviceName: {{ include "password-generator.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "password-generator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "password-generator.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      containers:
+      - env:
+        - name: FQDN
+          value: {{ .Values.env.fqdn }}
+        - name: APP_PATH
+          value: {{ .Values.env.app_path }}
+        name: {{ .Chart.Name }}
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+          - name: http
+            containerPort: 8080
+            protocol: TCP
+#        livenessProbe:
+#          httpGet:
+#            path: /
+#            port: http
+#        readinessProbe:
+#          httpGet:
+#            path: /
+#            port: http
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        command:
+        - sh
+        - -c
+        - "python3 password_generator_application/manage.py migrate;python3 password_generator_application/manage.py runserver 0.0.0.0:8080"
+        {{- if .Values.persistence.storageClass }}
+        volumeMounts:
+        - mountPath: /home/duser/django
+          name: password-generator-vol
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: password-generator-vol
+        persistentVolumeClaim:
+          claimName: {{ include "password-generator.fullname" . }}-claim

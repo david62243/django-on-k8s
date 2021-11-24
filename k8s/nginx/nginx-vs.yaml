@@ -1,0 +1,22 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: nginx-vs
+spec:
+  gateways:
+  - default/cluster-gateway
+  hosts:
+  - '*'
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: nginx 
+        port:
+          number: 80
+      headers:
+        response:
+          add:
+            Strict-Transport-Security: max-age=63072000; includeSubDomains; preload

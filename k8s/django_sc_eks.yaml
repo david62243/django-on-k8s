@@ -1,0 +1,9 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: django-sc2
+parameters:
+  directoryPerms: "700"
+  fileSystemId: fs-06046c0d0aebcfd80
+  provisioningMode: efs-ap
+provisioner: efs.csi.aws.com

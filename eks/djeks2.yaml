@@ -1,0 +1,25 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: djeks2
+  region: us-east-2
+  version: "1.21"
+
+#vpc:
+# id: "vpc-00d1ac80e1b16d4f8"
+#  subnets:
+#    private:
+#      eks1:
+#          id: "subnet-084e19be9306d8b08"
+#      eks2:
+#          id: "subnet-03b2132bb1aff8269"
+
+
+nodeGroups:
+  - name: ng-1
+    ssh:
+      allow: true
+      publicKeyPath: ~/eks.pub
+    instanceType: t4g.large
+    desiredCapacity: 2
